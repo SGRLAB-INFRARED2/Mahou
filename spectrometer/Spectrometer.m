@@ -22,7 +22,7 @@ function varargout = Spectrometer(varargin)
 
 % Edit the above text to modify the response to help Spectrometer
 
-% Last Modified by GUIDE v2.5 08-Apr-2019 16:44:57
+% Last Modified by GUIDE v2.5 09-Sep-2021 17:14:06
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -128,6 +128,7 @@ delete(splash);
 % Update handles structure
 handles.initialized = 1;
 guidata(hObject, handles);
+movegui(hObject, 'center')
 
 % --- Outputs from this function are returned to the command line.
 function varargout = Spectrometer_OutputFcn(hObject, eventdata, handles)
@@ -1016,4 +1017,57 @@ function pumLaserSource_CreateFcn(hObject, eventdata, handles)
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pbBlankShot.
+function pbBlankShot_Callback(hObject, eventdata, handles)
+% hObject    handle to pbBlankShot (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+global method
+
+% Called recursively if scan is running
+if method.ScanIsRunning == true
+    beep
+    return
+end
+
+set(hObject, 'String', 'Acquiring Blank Shots...', 'BackgroundColor', [1.0 0.0 0.0]);
+
+try
+    method.BlankShotAcquire;
+catch E
+    
+    set(hObject, 'String', 'Acquire Blank Shots', 'BackgroundColor', [0.8 0.8 0.8]);
+    %cleanup('','');
+    warning('SGRLAB:UnderConstruction','An error occured during the background!!!');
+    warning(E.message);
+    %reset FPAS
+    method.source.sampler.Initialize;
+    %reset scan is running
+    method.ScanIsRunning = false;
+end
+
+set(hObject, 'String', 'Acquire Blank Shots', 'BackgroundColor', [0.8 0.8 0.8]);
+
+
+
+
+% --- Executes on button press in pbBlankShotReset.
+function pbBlankShotReset_Callback(hObject, eventdata, handles)
+% hObject    handle to pbBlankShotReset (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global method
+if method.ScanIsRunning == true
+    beep
+    return
+end
+try
+    method.BlankShotReset;
+catch E
+    cleanup('','');
+    rethrow(E);
 end

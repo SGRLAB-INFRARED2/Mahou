@@ -61,6 +61,7 @@ classdef Method < handle
         laserPD = struct('raw',[],'bkgd',945,'signal',[],'noise',0,'ind_laser',78);
         %hard coded the background value of the photodiode + gated integrator
         %dark signal for now as a starting point.
+        multiChanRefMatrix = zeros(32);
     end
     
     %booleans to communicate about the state of a scan. When
@@ -171,6 +172,18 @@ classdef Method < handle
         
         function SaveBackground(obj)
             name = 'background';
+            d = Defaults(obj);
+            d.SaveDefaults(name);
+        end
+        
+        function LoadMultiChanRefMatrix(obj)
+            name = 'multiChanRefMatrix';
+            d = Defaults(obj);
+            d.LoadDefaults(name);
+        end
+        
+        function SaveMultiChanRefMatrix(obj)
+            name = 'multiChanRefMatrix';
             d = Defaults(obj);
             d.SaveDefaults(name);
         end
@@ -359,6 +372,60 @@ classdef Method < handle
             obj.SaveBackground;
             obj.ScanIsRunning = false;
             
+        end
+        
+        function BlankShotReset(obj)
+            obj.multiChanRefMatrix = eye(32);
+            obj.SaveMultiChanRefMatrix;
+        end
+        
+        function BlankShotAcquire(obj)
+            obj.ScanIsRunning = true;
+            obj.ScanIsStopping = false;
+            
+            init_nShots = obj.PARAMS.nShots;
+            
+            obj.PARAMS.nShots = 10000;
+            
+            obj.source.motors{2}.MoveTo(-10000,6000,0,0)
+            
+            obj.InitializeTask;
+            
+            obj.source.sampler.Start;
+            obj.source.gate.OpenClockGate;
+            obj.sample = obj.source.sampler.Read;
+            obj.source.gate.CloseClockGate;
+            
+            obj.ProcessSampleSort;
+            obj.ProcessBlankShots;
+            
+            obj.source.sampler.ClearTask;
+            
+            obj.PARAMS.nShots = init_nShots;
+            obj.SaveMultiChanRefMatrix;
+            obj.ScanIsRunning = false;
+            
+        end
+        
+        function ProcessBlankShots(obj)
+            Ref = obj.sorted(:,:,2);
+            LO = obj.sorted(:,:,1);
+            
+            dRef = diff(Ref, 1, 2);
+            dLO = diff(LO, 1, 2);
+            
+            B1 = zeros(32, 32, length(dRef));
+            B2 = zeros(32, 32, length(dRef));
+            
+            for ii = 1:length(dRef)
+                B1(:,:,ii) = dRef(:,ii)*dRef(:,ii)';
+                B2(:,:,ii) = dRef(:,ii)*dLO(:,ii)';
+            end
+            
+            B1_mean = mean(B1, 3);
+            B2_mean = mean(B2, 3);
+            
+            obj.multiChanRefMatrix = B1_mean^(-1)*B2_mean;
         end
         
         %save the current result to a MAT file for storage.
