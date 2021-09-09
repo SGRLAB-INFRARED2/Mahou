@@ -10,7 +10,7 @@ classdef Polarization_Method < Method
 %                     pause(1)
 %                 end
                 if ii == 1 && ~obj.ScanIsStopping
-                    obj.source.rotors(1).MoveTo(21);
+                    obj.source.rotors(1).MoveTo(0);
                     obj.source.rotors(2).MoveTo(0);
                     obj.result.polarization = 'ZZZZ';
                     set(obj.handles.editnScans, 'String', get(obj.handles.editnScans_Para, 'String'));
@@ -19,7 +19,7 @@ classdef Polarization_Method < Method
                     end
                 elseif ii == 2 && ~obj.ScanIsStopping
                     obj.source.rotors(1).MoveTo(45);
-                    obj.source.rotors(2).MoveTo(270);
+                    obj.source.rotors(2).MoveTo(270); %can be 90 depending on alignment and where the "scratch" is...
                     obj.result.polarization = 'ZZXX';
                     set(obj.handles.editnScans, 'String', get(obj.handles.editnScans_Perp, 'String'));
                     if contains(class(method), 'Multi_Time')

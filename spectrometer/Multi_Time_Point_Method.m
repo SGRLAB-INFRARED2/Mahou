@@ -148,10 +148,10 @@ classdef Multi_Time_Point_Method < Polarization_Method
             tblDataTypes(:) = {'cell'};
             
             if ~isempty(obj.temp_t2_array{end})
-                obj.temp_t2_array{end+1} = [];
-                obj.temp_nScans_array{end+1} = [];
-                obj.temp_nScans_Para_array{end+1} = [];
-                obj.temp_nScans_Perp_array{end+1} = [];
+                obj.temp_t2_array{end+1,1} = [];
+                obj.temp_nScans_array{end+1,1} = [];
+                obj.temp_nScans_Para_array{end+1,1} = [];
+                obj.temp_nScans_Perp_array{end+1,1} = [];
             end
 
             tbl = table('Size', [numel(obj.temp_t2_array) numel(obj.colNames)], 'VariableTypes', tblDataTypes);
