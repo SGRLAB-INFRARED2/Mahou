@@ -7,10 +7,10 @@ classdef Method_2d_quasiphase_Multi_Time_Point < Method_2d_quasiphase & Multi_Ti
     
     methods
         function obj = Method_2d_quasiphase_Multi_Time_Point(sampler,gate,spect,...
-                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hDiagnosticsPanel)
+                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hLaserOutputAxes,hDiagnosticsPanel)
             
             obj = obj@Method_2d_quasiphase(sampler,gate,spect,...
-                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hDiagnosticsPanel);
+                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hLaserOutputAxes,hDiagnosticsPanel);
             
             obj.LoadT2Array();
             obj.LoadnScansArray();

@@ -72,7 +72,7 @@ classdef Method_Test_Phasing < Method
     %
     methods
         function obj = Method_Test_Phasing(sampler,gate,spect,...
-                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hDiagnosticsPanel)
+                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hLaserOutputAxes,hDiagnosticsPanel)
             %constructor
             
             if nargin == 0
@@ -102,6 +102,7 @@ classdef Method_Test_Phasing < Method
             obj.hMainAxes = hMainAxes;
             obj.hParamsPanel = hParamsPanel;
             obj.hRawDataAxes = hRawDataAxes;
+            obj.hLaserOutputAxes = hLaserOutputAxes;
             obj.hDiagnosticsPanel = hDiagnosticsPanel;
             obj.handles = handles;
             
@@ -261,6 +262,7 @@ classdef Method_Test_Phasing < Method
             %plot results
             RefreshPlots(obj,obj.hPlotMain)
             RefreshPlots(obj,obj.hPlotRaw)
+            RefreshPlots(obj,obj.hPlotLaserOutput)
             UpdateDiagnostics(obj);
             drawnow
             %no saving
@@ -287,6 +289,7 @@ classdef Method_Test_Phasing < Method
             %plot results
             RefreshPlots(obj,obj.hPlotMain)
             RefreshPlots(obj,obj.hPlotRaw)
+            RefreshPlots(obj,obj.hPlotLaserOutput)
             UpdateDiagnostics(obj);
             
             %no saving

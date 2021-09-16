@@ -7,10 +7,10 @@ classdef Method_2d_quasiphase_Multi_Time_Polarization < Method_2d_quasiphase_Pol
     
     methods % Constructor Method
         function obj = Method_2d_quasiphase_Multi_Time_Polarization(sampler,gate,spect,...
-                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hDiagnosticsPanel)
+                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hLaserOutputAxes,hDiagnosticsPanel)
             
             obj = obj@Method_2d_quasiphase_Polarization(sampler,gate,spect,...
-                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hDiagnosticsPanel);
+                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hLaserOutputAxes,hDiagnosticsPanel);
             
             obj.LoadT2Array();
             obj.LoadnScansArray();

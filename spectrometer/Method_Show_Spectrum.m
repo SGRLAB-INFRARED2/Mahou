@@ -62,7 +62,7 @@ classdef Method_Show_Spectrum < Method
     %
     methods
         function obj = Method_Show_Spectrum(sampler,gate,spect,...
-                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hDiagnosticsPanel)
+                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hLaserOutputAxes,hDiagnosticsPanel)
             %constructor
             
             if nargin == 0
@@ -91,6 +91,7 @@ classdef Method_Show_Spectrum < Method
             obj.hMainAxes = hMainAxes;
             obj.hParamsPanel = hParamsPanel;
             obj.hRawDataAxes = hRawDataAxes;
+            obj.hLaserOutputAxes = hLaserOutputAxes;
             obj.hDiagnosticsPanel = hDiagnosticsPanel;
             obj.handles = handles;
             
@@ -228,6 +229,7 @@ classdef Method_Show_Spectrum < Method
             %plot results
             RefreshPlots(obj,obj.hPlotMain)
             RefreshPlots(obj,obj.hPlotRaw)
+            RefreshPlots(obj,obj.hPlotLaserOutput)
             UpdateDiagnostics(obj);
             RefreshUITable(obj);
             drawnow
@@ -253,6 +255,7 @@ classdef Method_Show_Spectrum < Method
             %plot results
             RefreshPlots(obj,obj.hPlotMain)
             RefreshPlots(obj,obj.hPlotRaw)
+            RefreshPlots(obj,obj.hPlotLaserOutput)
             UpdateDiagnostics(obj);
             RefreshUITable(obj);
             drawnow

@@ -67,7 +67,7 @@ classdef Method_Collect_QCL_Spectrum < Method
     %
     methods
         function obj = Method_Collect_QCL_Spectrum(sampler,gate,spect,...
-                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hDiagnosticsPanel)
+                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hLaserOutputAxes,hDiagnosticsPanel)
             global QCLLaser qclgui
             %constructor
             
@@ -97,6 +97,7 @@ classdef Method_Collect_QCL_Spectrum < Method
             obj.hMainAxes = hMainAxes;
             obj.hParamsPanel = hParamsPanel;
             obj.hRawDataAxes = hRawDataAxes;
+            obj.hLaserOutputAxes = hLaserOutputAxes;
             obj.hDiagnosticsPanel = hDiagnosticsPanel;
             obj.handles = handles;
             obj.saveData=true;

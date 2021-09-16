@@ -72,7 +72,7 @@ classdef Method_2d_quasiphase < Method
     %
     methods
         function obj = Method_2d_quasiphase(sampler,gate,spect,...
-                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hDiagnosticsPanel)
+                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hLaserOutputAxes,hDiagnosticsPanel)
             %constructor
             
             if nargin == 0
@@ -102,6 +102,7 @@ classdef Method_2d_quasiphase < Method
             obj.hMainAxes = hMainAxes;
             obj.hParamsPanel = hParamsPanel;
             obj.hRawDataAxes = hRawDataAxes;
+            obj.hLaserOutputAxes = hLaserOutputAxes;
             obj.hDiagnosticsPanel = hDiagnosticsPanel;
             obj.handles = handles;
             
@@ -296,6 +297,7 @@ classdef Method_2d_quasiphase < Method
             %plot results
             RefreshPlots(obj,obj.hPlotMain)
             RefreshPlots(obj,obj.hPlotRaw)
+            RefreshPlots(obj,obj.hPlotLaserOutput)
             UpdateDiagnostics(obj);
             drawnow
             %no saving
@@ -322,6 +324,7 @@ classdef Method_2d_quasiphase < Method
             %plot results
             RefreshPlots(obj,obj.hPlotMain)
             RefreshPlots(obj,obj.hPlotRaw)
+            RefreshPlots(obj,obj.hPlotLaserOutput)
             UpdateDiagnostics(obj);
             
             %no saving

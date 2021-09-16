@@ -72,14 +72,16 @@ classdef Method < handle
         %handles to the plots so we can refresh them
         hPlotMain;
         hPlotRaw;
+        hPlotLaserOutput;
         
         hMainAxes;
         hParamsPanel;
         hRawDataAxes;
+        hLaserOutputAxes;
         hDiagnosticsPanel;
         handles; %should be able to do this better but for now try this
         
-        noiseGain = 1;
+        noiseGain = 10^5;
         
         saveData = false;
     end
@@ -224,6 +226,15 @@ classdef Method < handle
             %       set(hAxesRawData, 'XLim', [obj.freq(1) obj.freq(end)]);
         end
         
+        function InitializeLaserOutputPlot(obj)
+            obj.hPlotLaserOutput = 0;
+            obj.laserPD.signal = 30000*ones(1, obj.PARAMS.nShots);
+            obj.hPlotLaserOutput = plot(obj.hLaserOutputAxes, 1:obj.PARAMS.nShots, obj.laserPD.signal);
+            set(obj.hPlotLaserOutput,'Color','g');
+            set(obj.hPlotLaserOutput,'YDataSource','obj.laserPD.signal');
+            set(obj.hLaserOutputAxes,'XLim',[1 obj.PARAMS.nShots],'Ylim',[0 2^16*1.05]);
+        end
+        
         %untested
         function Initialize(obj)
             whichMethod = obj.handles.popupMethods;
@@ -244,6 +255,8 @@ classdef Method < handle
             InitializeMainPlot(obj);
             
             InitializeRawDataPlot(obj);
+            
+            InitializeLaserOutputPlot(obj);
             
             InitializeDiagnostics(obj);
             

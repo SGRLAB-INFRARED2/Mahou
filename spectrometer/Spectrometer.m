@@ -22,7 +22,7 @@ function varargout = Spectrometer(varargin)
 
 % Edit the above text to modify the response to help Spectrometer
 
-% Last Modified by GUIDE v2.5 09-Sep-2021 17:14:06
+% Last Modified by GUIDE v2.5 10-Sep-2021 17:29:10
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -121,13 +121,15 @@ JY.InitializeGui(handles.uipanelMonochromator);
 
 %Default method on startup.
 method = Method_Show_Spectrum(FPAS,IO,JY,motors,rotors, handles,...
-    handles.pnlParameters,handles.axesMain,handles.axesRawData,handles.pnlNoise);
+    handles.pnlParameters,handles.axesMain,handles.axesRawData,handles.axesLaserOutput,handles.pnlNoise);
 
 delete(splash);
 
 % Update handles structure
 handles.initialized = 1;
 guidata(hObject, handles);
+
+% Move GUI to center of screen
 movegui(hObject, 'center')
 
 % --- Outputs from this function are returned to the command line.
@@ -288,7 +290,7 @@ sampler = feval([str_sampler '.getInstance']);
 %method = Method_Show_Spectrum(TEST,IO,JY,handles,handles.pnlParameters,...
 %  handles.axesMain,handles.axesRawData,handles.pnlNoise);
 method = feval(str_method,sampler,IO,JY,motors,rotors,handles,handles.pnlParameters,...
-    handles.axesMain,handles.axesRawData,handles.pnlNoise);
+    handles.axesMain,handles.axesRawData,handles.axesLaserOutput,handles.pnlNoise);
 
 % --- Executes during object creation, after setting all properties.
 function popupMethods_CreateFcn(hObject, eventdata, handles)
@@ -1070,4 +1072,58 @@ try
 catch E
     cleanup('','');
     rethrow(E);
+end
+
+
+% --- Executes on slider movement.
+function sliderLaserOutput_Callback(hObject, eventdata, handles)
+% hObject    handle to sliderLaserOutput (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+global method
+
+r_init = [0 2^16*1.05];
+laserPD_mean = mean(method.laserPD.signal);
+
+upper_diff = r_init(2) - laserPD_mean;
+lower_diff = laserPD_mean - r_init(1);
+
+if upper_diff > lower_diff
+    r_laser = [laserPD_mean - upper_diff laserPD_mean + upper_diff];
+elseif lower_diff > upper_diff
+    r_laser = [laserPD_mean - lower_diff laserPD_mean + lower_diff];
+else
+    r_laser = r_init;
+end
+
+
+sliderValue = get(hObject, 'Value');
+
+r_zoom = (1-sliderValue)*diff(r_laser);
+
+new_range = [laserPD_mean-r_zoom/2 laserPD_mean+r_zoom/2];
+
+if new_range(1) < r_init(1)
+    new_range(1) = r_init(1);
+end
+
+if new_range(2) > r_init(2)
+    new_range(2) = r_init(2);
+end
+
+set(handles.axesLaserOutput, 'YLim', new_range);
+
+
+% --- Executes during object creation, after setting all properties.
+function sliderLaserOutput_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to sliderLaserOutput (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
 end

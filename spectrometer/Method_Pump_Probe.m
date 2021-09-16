@@ -64,7 +64,7 @@ classdef Method_Pump_Probe < Method
     %
     methods
         function obj = Method_Pump_Probe(sampler,gate,spect,...
-                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hDiagnosticsPanel)
+                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hLaserOutputAxes,hDiagnosticsPanel)
             %constructor
             
             obj.nChopStates = obj.nSignals/obj.nArrays;
@@ -95,6 +95,7 @@ classdef Method_Pump_Probe < Method
             obj.hMainAxes = hMainAxes;
             obj.hParamsPanel = hParamsPanel;
             obj.hRawDataAxes = hRawDataAxes;
+            obj.hLaserOutputAxes = hLaserOutputAxes;
             obj.hDiagnosticsPanel = hDiagnosticsPanel;
             obj.handles = handles;
             obj.saveData = true;
@@ -244,6 +245,7 @@ classdef Method_Pump_Probe < Method
             %plot results
             RefreshPlots(obj,obj.hPlotMain)
             RefreshPlots(obj,obj.hPlotRaw)
+            RefreshPlots(obj,obj.hPlotLaserOutput)
             UpdateDiagnostics(obj);
             RefreshUITable(obj);
             drawnow
@@ -269,6 +271,7 @@ classdef Method_Pump_Probe < Method
             %plot results
             RefreshPlots(obj,obj.hPlotMain)
             RefreshPlots(obj,obj.hPlotRaw)
+            RefreshPlots(obj,obj.hPlotLaserOutput)
             UpdateDiagnostics(obj);
             RefreshUITable(obj);
             drawnow

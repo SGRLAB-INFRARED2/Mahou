@@ -2,7 +2,7 @@ classdef Method_2d_quasiphase_Polarization < Method_2d_quasiphase & Polarization
     
     methods
         function obj = Method_2d_quasiphase_Polarization(sampler,gate,spect,...
-                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hDiagnosticsPanel)
+                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hLaserOutputAxes,hDiagnosticsPanel)
             if nargin == 0
                 %put actions here for when constructor is called with no arguments,
                 %which will serve as defaults.
@@ -30,6 +30,7 @@ classdef Method_2d_quasiphase_Polarization < Method_2d_quasiphase & Polarization
             obj.hMainAxes = hMainAxes;
             obj.hParamsPanel = hParamsPanel;
             obj.hRawDataAxes = hRawDataAxes;
+            obj.hLaserOutputAxes = hLaserOutputAxes;
             obj.hDiagnosticsPanel = hDiagnosticsPanel;
             obj.handles = handles;
             

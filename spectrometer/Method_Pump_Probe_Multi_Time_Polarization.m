@@ -7,10 +7,10 @@ classdef Method_Pump_Probe_Multi_Time_Polarization < Method_Pump_Probe_Polarizat
     
     methods % Constructor Method
         function obj = Method_Pump_Probe_Multi_Time_Polarization(sampler,gate,spect,...
-                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hDiagnosticsPanel)
+                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hLaserOutputAxes,hDiagnosticsPanel)
             
             obj = obj@Method_Pump_Probe_Polarization(sampler,gate,spect,...
-                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hDiagnosticsPanel);
+                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hLaserOutputAxes,hDiagnosticsPanel);
             
             obj.LoadT2Array();
             obj.LoadnScansArray();

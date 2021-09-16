@@ -1,7 +1,7 @@
 classdef Method_Pump_Probe_Polarization < Method_Pump_Probe & Polarization_Method
     methods
         function obj = Method_Pump_Probe_Polarization(sampler,gate,spect,...
-                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hDiagnosticsPanel)
+                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hLaserOutputAxes,hDiagnosticsPanel)
             %constructor
             
             obj.nChopStates = obj.nSignals/obj.nArrays;
@@ -32,6 +32,7 @@ classdef Method_Pump_Probe_Polarization < Method_Pump_Probe & Polarization_Metho
             obj.hMainAxes = hMainAxes;
             obj.hParamsPanel = hParamsPanel;
             obj.hRawDataAxes = hRawDataAxes;
+            obj.hLaserOutputAxes = hLaserOutputAxes;
             obj.hDiagnosticsPanel = hDiagnosticsPanel;
             obj.handles = handles;
             obj.saveData = true;

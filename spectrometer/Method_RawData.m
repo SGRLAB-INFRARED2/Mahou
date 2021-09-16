@@ -14,7 +14,9 @@ classdef Method_RawData < Method
      
     methods
         
-        function obj = Method_RawData
+        function obj = Method_RawData(sampler,gate,spect,...
+                motors,rotors,handles,hParamsPanel,hMainAxes,hRawDataAxes,hLaserOutputAxes,hDiagnosticsPanel)
+            
             if nargin == 0
                 %put actions here for when constructor is called with no arguments,
                 %which will serve as defaults. 
@@ -41,6 +43,7 @@ classdef Method_RawData < Method
             obj.hMainAxes = hMainAxes;
             obj.hParamsPanel = hParamsPanel;
             obj.hRawDataAxes = hRawDataAxes;
+            obj.hLaserOutputAxes = hLaserOutputAxes;
             obj.hDiagnosticsPanel = hDiagnosticsPanel;
             obj.handles = handles;
 
@@ -104,6 +107,7 @@ classdef Method_RawData < Method
             %plot results
             RefreshPlots(obj,obj.hPlotMain)
             RefreshPlots(obj,obj.hPlotRaw)
+            RefreshPlots(obj,obj.hPlotLaserOutput)
             UpdateDiagnostics(obj);
             drawnow
         end
