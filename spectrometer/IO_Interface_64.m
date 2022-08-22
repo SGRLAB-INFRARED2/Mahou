@@ -15,7 +15,7 @@ classdef IO_Interface_64 < handle
             try
                 %                 obj.dio = digitalio('nidaq', 'Dev2');
                 obj.dio = daq.createSession('ni');
-                addDigitalChannel(obj.dio,'Dev3','Port1/Line0','OutputOnly');
+                addDigitalChannel(obj.dio,'Dev3','Port1/Line7','OutputOnly');
                 obj.active = 1;
                 fprintf(1, 'Done.\n');
             catch err

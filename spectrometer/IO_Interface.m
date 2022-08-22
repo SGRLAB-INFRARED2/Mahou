@@ -11,7 +11,7 @@ classdef IO_Interface < handle
             fprintf(1, '\nInitializing IO interface ... ');
             obj.active = 0;
             try
-                obj.dio = digitalio('nidaq', 'Dev2');
+                obj.dio = digitalio('nidaq', 'Dev3');
                 obj.active = 1;
                 addline(obj.dio, 7, 1, 'out');      % Port 1 bit 7
                 fprintf(1, 'Done.\n')

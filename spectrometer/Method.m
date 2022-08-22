@@ -228,11 +228,13 @@ classdef Method < handle
         
         function InitializeLaserOutputPlot(obj)
             obj.hPlotLaserOutput = 0;
-            obj.laserPD.signal = 30000*ones(1, obj.PARAMS.nShots);
-            obj.hPlotLaserOutput = plot(obj.hLaserOutputAxes, 1:obj.PARAMS.nShots, obj.laserPD.signal);
+            obj.laserPD.raw = 30000*ones(1, obj.PARAMS.nShots);
+            obj.hPlotLaserOutput = plot(obj.hLaserOutputAxes, 1:obj.PARAMS.nShots, obj.laserPD.raw);
             set(obj.hPlotLaserOutput,'Color','g');
-            set(obj.hPlotLaserOutput,'YDataSource','obj.laserPD.signal');
-            set(obj.hLaserOutputAxes,'XLim',[1 obj.PARAMS.nShots],'Ylim',[0 2^16*1.05]);
+            set(obj.hPlotLaserOutput,'XDataSource','1:obj.PARAMS.nShots')
+            set(obj.hPlotLaserOutput,'YDataSource','obj.laserPD.raw');
+            set(obj.hLaserOutputAxes, 'YLim', [0 2^16*1.05]);
+            set(obj.hLaserOutputAxes, 'XLimSpec', 'tight');
         end
         
         %untested
@@ -396,11 +398,19 @@ classdef Method < handle
             obj.ScanIsRunning = true;
             obj.ScanIsStopping = false;
             
+            obj.ReadParameters;
+            
             init_nShots = obj.PARAMS.nShots;
+            init_pos = obj.source.motors{2}.GetPosition;
             
             obj.PARAMS.nShots = 10000;
+            set(obj.handles.editnShots,'String',num2str(10000));
             
-            obj.source.motors{2}.MoveTo(-10000,6000,0,0)
+            obj.source.motors{2}.MoveTo(-10000,6000,0,0);
+            
+%             obj.ReadParameters;
+            
+            obj.InitializeData;
             
             obj.InitializeTask;
             
@@ -408,21 +418,23 @@ classdef Method < handle
             obj.source.gate.OpenClockGate;
             obj.sample = obj.source.sampler.Read;
             obj.source.gate.CloseClockGate;
-            
-            obj.ProcessSampleSort;
-            obj.ProcessBlankShots;
-            
             obj.source.sampler.ClearTask;
             
+            obj.ProcessBlankShots;
+            
+            set(obj.handles.editnShots,'String',num2str(init_nShots));
             obj.PARAMS.nShots = init_nShots;
+            
             obj.SaveMultiChanRefMatrix;
             obj.ScanIsRunning = false;
+            
+            obj.source.motors{2}.MoveTo(init_pos,6000,0,0);
             
         end
         
         function ProcessBlankShots(obj)
-            Ref = obj.sorted(:,:,2);
-            LO = obj.sorted(:,:,1);
+            Ref = obj.sample(1:32,:);
+            LO = obj.sample(33:64,:);
             
             dRef = diff(Ref, 1, 2);
             dLO = diff(LO, 1, 2);

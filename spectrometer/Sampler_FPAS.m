@@ -25,7 +25,7 @@ classdef (Sealed) Sampler_FPAS < handle
         hTask;
         nSamplesPerSecond;
         timeout;
-        COMPortID = 'COM6';
+        COMPortID = 'COM1'; %On Compy 2: FPAS1 = COM6; FPAS2 = COM8
         COMPort;
         COMPortOpts = struct('BaudRate',9600,...
             'Parity','none',...

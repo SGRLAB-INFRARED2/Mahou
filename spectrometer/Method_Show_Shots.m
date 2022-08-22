@@ -353,8 +353,8 @@ classdef Method_Show_Shots < Method
         function ProcessSampleNoise(obj)
             
             % --- Start of new multi-channel referencing ---
-            LO = obj.signal.data(:,:,1);
-            Ref = obj.signal.data(:,:,2);
+            LO = obj.sorted(:,:,1);
+            Ref = obj.sorted(:,:,2);
             
             RefB = zeros(32, length(Ref));
             

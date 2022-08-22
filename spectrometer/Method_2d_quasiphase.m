@@ -443,21 +443,21 @@ classdef Method_2d_quasiphase < Method
             obj.result.zeropad = 2*(obj.PARAMS.bin_max - obj.PARAMS.bin_zero);              % @@@Something smarter
             
             % --- Start of new multi-channel referencing ---
-            LO = obj.signal.data(:,:,1);
-            Ref = obj.signal.data(:,:,2);
-            
-            RefB = zeros(32, length(Ref));
-            
-            for ii = 1:32
-                for jj = 1:length(Ref)
-                    RefB(ii, jj) = Ref(:,jj)'*obj.multiChanRefMatrix(:,ii);
-                end
-            end
-            
-            obj.result.PP = 1000.*log10(LO./RefB);
+%             LO = obj.signal.data(:,:,1);
+%             Ref = obj.signal.data(:,:,2);
+%             
+%             RefB = zeros(32, length(Ref));
+%             
+%             for ii = 1:32
+%                 for jj = 1:length(Ref)
+%                     RefB(ii, jj) = Ref(:,jj)'*obj.multiChanRefMatrix(:,ii);
+%                 end
+%             end
+%             
+%             obj.result.PP = 1000.*log10(LO./RefB);
             % --- End of new multi-channel referencing ---
             
-%             obj.result.PP = 1000*log10(obj.signal.data(:,:,1)./obj.signal.data(:,:,2));%squeeze(obj.signal.data(:,:,1));            
+            obj.result.PP = 1000*log10(obj.signal.data(:,:,1)./obj.signal.data(:,:,2));%squeeze(obj.signal.data(:,:,1));            
             
             obj.result.t0_bin = find(obj.result.bin==obj.PARAMS.bin_zero)-t0_bin_shift;
             obj.result.PARAMS = obj.PARAMS;
@@ -484,23 +484,23 @@ classdef Method_2d_quasiphase < Method
         function ProcessSampleNoise(obj)
             
             % --- Start of new multi-channel referencing ---
-            LO = obj.signal.data(:,:,1);
-            Ref = obj.signal.data(:,:,2);
-            
-            RefB = zeros(32, length(Ref));
-            
-            for ii = 1:32
-                for jj = 1:length(Ref)
-                    RefB(ii, jj) = Ref(:,jj)'*obj.multiChanRefMatrix(:,ii);
-                end
-            end
-            
-            obj.result.noise = 1000 * std(log10(LO./RefB),0,2)'/sqrt(obj.PARAMS.nShots);
+%             LO = obj.sorted(:,:,1);
+%             Ref = obj.sorted(:,:,2);
+%             
+%             RefB = zeros(32, length(Ref));
+%             
+%             for ii = 1:32
+%                 for jj = 1:length(Ref)
+%                     RefB(ii, jj) = Ref(:,jj)'*obj.multiChanRefMatrix(:,ii);
+%                 end
+%             end
+%             
+%             obj.result.noise = 1000 * std(log10(LO./RefB),0,2)';
             % --- End of new multi-channel referencing ---
             
             
             %calculate the signal from each shot for an estimate of the error
-%             obj.result.noise = 1000 * std(log10(obj.sorted(:,:,1)./obj.sorted(:,:,2)),0,2)';
+            obj.result.noise = 1000 * std(log10(obj.sorted(:,:,1)./obj.sorted(:,:,2)),0,2)';
             
             %the other option would be a propagation of error calculation but I
             %haven't worked through that yet. See wikipedia Propagation of

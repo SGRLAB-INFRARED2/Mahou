@@ -5,7 +5,7 @@ classdef FileSystem < handle
         DatePath;
         FileIndex;
         dataDirLocal='C:/data';
-        dataDirRemote='c:/Users/INFRARED/Box/data/2dir_data';
+%         dataDirRemote='c:/Users/INFRARED/Box/data/2dir_data';
         dataDirRemote2='c:/Users/INFRARED/OneDrive - University of Pittsburgh/data/2dir_data';
         eln;
     end
@@ -65,19 +65,19 @@ classdef FileSystem < handle
         end
         
         function SaveRemote(obj,data)
-            file_name_and_path = sprintf('%s/%s/%3.3d.mat',...
-                obj.dataDirRemote, obj.DateString, obj.FileIndex);
+%             file_name_and_path = sprintf('%s/%s/%3.3d.mat',...
+%                 obj.dataDirRemote, obj.DateString, obj.FileIndex);
             file_name_and_path2 = sprintf('%s/%s/%3.3d.mat',...
                 obj.dataDirRemote2, obj.DateString, obj.FileIndex);
-            dirname =  sprintf('%s/%s',obj.dataDirRemote, obj.DateString);
+%             dirname =  sprintf('%s/%s',obj.dataDirRemote, obj.DateString);
             dirname2 =  sprintf('%s/%s',obj.dataDirRemote2, obj.DateString);
-            if ~exist(dirname, 'file')
-                mkdir(dirname);
-            end
+%             if ~exist(dirname, 'file')
+%                 mkdir(dirname);
+%             end
             if ~exist(dirname2, 'file')
                 mkdir(dirname2);
             end
-            save(file_name_and_path, 'data');
+%             save(file_name_and_path, 'data');
             save(file_name_and_path2, 'data');
         end
         
@@ -129,21 +129,21 @@ classdef FileSystem < handle
         
         function SaveRemoteOutputFile(obj)
             
-            remote_file_name_and_path = sprintf('%s/%s/experimental_details.txt',...
-                obj.dataDirRemote, obj.DateString);
+%             remote_file_name_and_path = sprintf('%s/%s/experimental_details.txt',...
+%                 obj.dataDirRemote, obj.DateString);
             remote_file_name_and_path2 = sprintf('%s/%s/experimental_details.txt',...
                 obj.dataDirRemote2, obj.DateString);
             local_file_name_and_path = sprintf('%s/experimental_details.txt', obj.DatePath);
             
-            dirname =  sprintf('%s/%s',obj.dataDirRemote, obj.DateString);
-            if ~exist(dirname, 'file')
-                mkdir(dirname);
-            end
+%             dirname =  sprintf('%s/%s',obj.dataDirRemote, obj.DateString);
+%             if ~exist(dirname, 'file')
+%                 mkdir(dirname);
+%             end
             dirname2 =  sprintf('%s/%s',obj.dataDirRemote2, obj.DateString);
             if ~exist(dirname2, 'file')
                 mkdir(dirname2);
             end
-            copyfile(local_file_name_and_path, remote_file_name_and_path);
+%             copyfile(local_file_name_and_path, remote_file_name_and_path);
             copyfile(local_file_name_and_path, remote_file_name_and_path2);
         end
         

@@ -273,6 +273,11 @@ function updateMethod(handles)
 %implemented. Called by popupMethods_Callback and popupDataSource_Callback
 global method IO JY motors rotors;
 
+noiseGainSetting = get(handles.sliderNoiseGain, 'Value');
+
+laserOutputYRange = handles.axesLaserOutput.YLim;
+laserOutputMean = mean(method.laserPD.raw);
+
 %clear old class instance
 delete(method);
 
@@ -291,6 +296,11 @@ sampler = feval([str_sampler '.getInstance']);
 %  handles.axesMain,handles.axesRawData,handles.pnlNoise);
 method = feval(str_method,sampler,IO,JY,motors,rotors,handles,handles.pnlParameters,...
     handles.axesMain,handles.axesRawData,handles.axesLaserOutput,handles.pnlNoise);
+
+method.laserPD.raw = laserOutputMean.*ones(1,method.PARAMS.nShots);
+method.RefreshPlots(method.hPlotLaserOutput);
+set(handles.axesLaserOutput, 'YLim', laserOutputYRange);
+method.noiseGain = 10^noiseGainSetting;
 
 % --- Executes during object creation, after setting all properties.
 function popupMethods_CreateFcn(hObject, eventdata, handles)
@@ -1044,7 +1054,7 @@ catch E
     
     set(hObject, 'String', 'Acquire Blank Shots', 'BackgroundColor', [0.8 0.8 0.8]);
     %cleanup('','');
-    warning('SGRLAB:UnderConstruction','An error occured during the background!!!');
+    warning('SGRLAB:UnderConstruction','An error occured during the blank shot acquisition!!!');
     warning(E.message);
     %reset FPAS
     method.source.sampler.Initialize;
@@ -1086,7 +1096,7 @@ function sliderLaserOutput_Callback(hObject, eventdata, handles)
 global method
 
 r_init = [0 2^16*1.05];
-laserPD_mean = mean(method.laserPD.signal);
+laserPD_mean = mean(method.laserPD.raw);
 
 upper_diff = r_init(2) - laserPD_mean;
 lower_diff = laserPD_mean - r_init(1);
