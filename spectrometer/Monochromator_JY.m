@@ -13,9 +13,12 @@ classdef (Sealed) Monochromator_JY < handle
         Tag = 'Mono_JY';
     end
     properties %public properties
+        diffractionOrder = 1;
     end
     
     properties (Dependent)
+        absoluteWavelength;
+        absoluteWavenumbers;
         wavelength;
         wavenumbers;
         wavelengthAxis;
@@ -65,6 +68,7 @@ classdef (Sealed) Monochromator_JY < handle
             obj.UpdateWavelengthWavenumbers;
             obj.UpdateSlit;
             obj.UpdateTurret;
+            obj.UpdateDiffractionOrder;
             obj.handles = guihandles(obj.hPanel);    %last
             fprintf(1, 'Done.\n');
         end
@@ -81,16 +85,28 @@ classdef (Sealed) Monochromator_JY < handle
             fprintf(1, 'Done.\n')
         end
         
-        function out = get.wavelength(obj)
+        function out = get.absoluteWavelength(obj)
             if obj.initialized
                 out = obj.mono.GetCurrentWavelength;
             else
                 out = 3000;
             end
         end
+
+        function out = get.wavelength(obj)
+            if obj.initialized
+                out = obj.mono.GetCurrentWavelength./obj.diffractionOrder;
+            else
+                out = 3000;
+            end
+        end
+
+        function out = get.absoluteWavenumbers(obj)
+            out = 10^7/obj.mono.GetCurrentWavelength;
+        end
         
         function out = get.wavenumbers(obj)
-            out = 10^7/obj.mono.GetCurrentWavelength;
+            out = (10^7/obj.mono.GetCurrentWavelength)./obj.diffractionOrder;
         end
         
         function out = get.wavelengthAxis(obj)
@@ -107,8 +123,8 @@ classdef (Sealed) Monochromator_JY < handle
                 otherwise
                     warning('turret numbering is out of bounds');
             end
-            out = dir.*((1:obj.nPixelsPerArray)-obj.zeroPixel)*dispersion ...
-                + obj.wavelength;
+            out = (dir.*((1:obj.nPixelsPerArray)-obj.zeroPixel)*dispersion ...
+                + obj.absoluteWavelength)./obj.diffractionOrder;
         end
         
         function out = get.wavenumbersAxis(obj)
@@ -178,21 +194,21 @@ classdef (Sealed) Monochromator_JY < handle
                 'Tag','editWavelength',...
                 'Callback',{@(hObject,eventdata) editWavelength_Callback(obj,hObject,eventdata)},...
                 'units','normalized',...
-                'Position',[0.05 0.70 0.3 0.25]...
+                'Position',[0.05 0.53 0.3 0.20]...
                 );
             obj.hChildren(2) = uicontrol(obj.hPanel,...
                 'Style','edit',...
                 'Tag','editWavenumbers',...
                 'Callback',{@(hObject,eventdata) editWavenumbers_Callback(obj,hObject,eventdata)},...
                 'units','normalized',...
-                'Position',[0.05 0.4 0.3 0.25]...
+                'Position',[0.05 0.29 0.3 0.20]...
                 );
             obj.hChildren(3) = uicontrol(obj.hPanel,...
                 'Style','edit',...
                 'Tag','editSlit',...
                 'Callback',{@(hObject,eventdata) editSlit_Callback(obj,hObject,eventdata)},...
                 'units','normalized',...
-                'Position',[0.05 0.1 0.3 0.25]...
+                'Position',[0.05 0.05 0.3 0.20]...
                 );
             obj.hChildren(4) = uicontrol(obj.hPanel,...
                 'Style','text',...
@@ -200,7 +216,7 @@ classdef (Sealed) Monochromator_JY < handle
                 'String','nm',...
                 'HorizontalAlignment','left',...
                 'units','normalized',...
-                'Position',[0.355 0.7 0.2 0.25]...
+                'Position',[0.355 0.51 0.2 0.20]...
                 );
             obj.hChildren(5) = uicontrol(obj.hPanel,...
                 'Style','text',...
@@ -208,7 +224,7 @@ classdef (Sealed) Monochromator_JY < handle
                 'String','cm-1',...
                 'HorizontalAlignment','left',...
                 'units','normalized',...
-                'Position',[0.355 0.4 0.2 0.25]...
+                'Position',[0.355 0.27 0.2 0.20]...
                 );
             obj.hChildren(6) = uicontrol(obj.hPanel,...
                 'Style','text',...
@@ -216,7 +232,7 @@ classdef (Sealed) Monochromator_JY < handle
                 'String','mm',...
                 'HorizontalAlignment','left',...
                 'units','normalized',...
-                'Position',[0.355 0.1 0.2 0.25]...
+                'Position',[0.355 0.02 0.2 0.20]...
                 );
             
             %turret button group is a little more complex
@@ -225,7 +241,7 @@ classdef (Sealed) Monochromator_JY < handle
                 'Tag','bgTurret',...
                 'BorderType','none',...
                 'units','normalized',...
-                'Position',[0.5 0.0 0.5 1]);
+                'Position',[0.55 0.0 0.5 0.8]);
             
             %now the individual radio btns
             obj.hChildren(8) = uicontrol(obj.hChildren(7),...
@@ -255,6 +271,22 @@ classdef (Sealed) Monochromator_JY < handle
             %set selection function callback
             set(obj.hChildren(7),'SelectionChangeFcn',...
                 {@(hObject,eventdata) bgTurret_Callback(obj,hObject,eventdata)})
+
+            obj.hChildren(11) = uicontrol(obj.hPanel, ...
+                'Style','popupmenu',...
+                'Tag', 'pumDiffOrder', ...
+                'Units','normalized',...
+                'String', {'1', '2'},...
+                'Callback', @(hObject, eventdata) pumDiffOrder_Callback(obj, hObject, eventdata),...
+                'Position', [0.05, 0.75, 0.3, 0.2]);
+            
+            obj.hChildren(12) = uicontrol(obj.hPanel, ...
+                'Style', 'text',...
+                'String', 'Diffaction Order',...
+                'HorizontalAlignment','left',...
+                'Units', 'normalized',...
+                'Position', [0.355, 0.74, 0.64, 0.2]);
+            
             
             %finally update handles
             obj.handles = guihandles(obj.hPanel);
@@ -272,8 +304,13 @@ classdef (Sealed) Monochromator_JY < handle
             set(obj.handles.editWavelength,'String',sprintf('%8.2f',wl));
             set(obj.handles.editWavenumbers,'String',sprintf('%8.2f',wn));
         end
+
         function UpdateSlit(obj)
             set(obj.handles.editSlit,'String',sprintf('%4.1f',obj.slit));
+        end
+
+        function UpdateDiffractionOrder(obj)
+            set(obj.handles.pumDiffOrder, 'Value', obj.diffractionOrder);
         end
         function UpdateTurret(obj)
             %         fprintf(1,'update turret is %i\n',obj.turret);
@@ -306,7 +343,7 @@ classdef (Sealed) Monochromator_JY < handle
     end
     methods (Access = public)
         function editWavelength_Callback(obj,hObject, eventdata)
-            new = ReadWavelength(obj);
+            new = obj.diffractionOrder * ReadWavelength(obj);
             %TODO add error checking here
             obj.mono.MovetoWavelength(new)
             while obj.mono.IsBusy
@@ -317,7 +354,7 @@ classdef (Sealed) Monochromator_JY < handle
             
         end
         function editWavenumbers_Callback(obj,hObject, eventdata)
-            new = ReadWavenumbers(obj);
+            new = obj.diffractionOrder * ReadWavenumbers(obj);
             new = 10^7/new;
             %TODO add error checking here
             obj.mono.MovetoWavelength(new)
@@ -341,15 +378,29 @@ classdef (Sealed) Monochromator_JY < handle
         function bgTurret_Callback(obj,hObject, eventdata)
             obj.turret = ReadTurret(obj);
         end
+
+        function pumDiffOrder_Callback(obj, hObject, eventdata)
+            value = hObject.Value;
+            obj.diffractionOrder = value;
+
+            new = obj.diffractionOrder * ReadWavelength(obj);
+            %TODO add error checking here
+            obj.mono.MovetoWavelength(new)
+            while obj.mono.IsBusy
+                drawnow
+                obj.UpdateWavelengthWavenumbers;
+            end
+            obj.UpdateWavelengthWavenumbers;
+        end
         
         function ReadDefaults(obj)
-            name = 'turret';
+            name = {'turret', 'diffractionOrder'};
             d = Defaults(obj);
             d.LoadDefaults(name);
         end
         
         function SaveDefaults(obj)
-            name = 'turret';
+            name = {'turret', 'diffractionOrder'};
             d = Defaults(obj);
             d.SaveDefaults(name);
         end
