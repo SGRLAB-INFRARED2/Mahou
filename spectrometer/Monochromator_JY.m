@@ -10,10 +10,12 @@ classdef (Sealed) Monochromator_JY < handle
         handles;
         nPixelsPerArray = 32;
         zeroPixel = 16; %which pixel of the detector at lambda = 0
+        diffractionOrder = 1;
         Tag = 'Mono_JY';
     end
+
     properties %public properties
-        diffractionOrder = 1;
+        
     end
     
     properties (Dependent)
@@ -50,7 +52,7 @@ classdef (Sealed) Monochromator_JY < handle
     end
     
     methods %public
-        function obj = set.turret(obj, val)
+        function set.turret(obj, val)
             obj.mono.MovetoTurret(val);
             while obj.mono.IsBusy
                 drawnow
@@ -59,6 +61,17 @@ classdef (Sealed) Monochromator_JY < handle
                 obj.UpdateTurret;
             catch
             end
+        end
+
+        function set.diffractionOrder(obj, val)
+            new = val * ReadWavelength(obj);
+            %TODO add error checking here
+            obj.mono.MovetoWavelength(new)
+            while obj.mono.IsBusy
+                drawnow
+                obj.UpdateWavelengthWavenumbers;
+            end
+            obj.UpdateWavelengthWavenumbers;
         end
         
         function InitializeGui(obj,hPanel)
@@ -312,6 +325,7 @@ classdef (Sealed) Monochromator_JY < handle
         function UpdateDiffractionOrder(obj)
             set(obj.handles.pumDiffOrder, 'Value', obj.diffractionOrder);
         end
+        
         function UpdateTurret(obj)
             %         fprintf(1,'update turret is %i\n',obj.turret);
             t = obj.turret;
@@ -383,14 +397,6 @@ classdef (Sealed) Monochromator_JY < handle
             value = hObject.Value;
             obj.diffractionOrder = value;
 
-            new = obj.diffractionOrder * ReadWavelength(obj);
-            %TODO add error checking here
-            obj.mono.MovetoWavelength(new)
-            while obj.mono.IsBusy
-                drawnow
-                obj.UpdateWavelengthWavenumbers;
-            end
-            obj.UpdateWavelengthWavenumbers;
         end
         
         function ReadDefaults(obj)
