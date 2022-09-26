@@ -10,12 +10,12 @@ classdef (Sealed) Monochromator_JY < handle
         handles;
         nPixelsPerArray = 32;
         zeroPixel = 16; %which pixel of the detector at lambda = 0
-        diffractionOrder = 1;
+        
         Tag = 'Mono_JY';
     end
 
     properties %public properties
-        
+        diffractionOrder;
     end
     
     properties (Dependent)
@@ -64,14 +64,19 @@ classdef (Sealed) Monochromator_JY < handle
         end
 
         function set.diffractionOrder(obj, val)
-            new = val * ReadWavelength(obj);
-            %TODO add error checking here
-            obj.mono.MovetoWavelength(new)
-            while obj.mono.IsBusy
-                drawnow
+            obj.diffractionOrder = val;
+            
+            if ~isempty(obj.handles)
+                new = ReadWavelength(obj) * val;
+                %TODO add error checking here
+                obj.mono.MovetoWavelength(new)
+            
+                while obj.mono.IsBusy
+                    drawnow
+                    obj.UpdateWavelengthWavenumbers;
+                end
                 obj.UpdateWavelengthWavenumbers;
             end
-            obj.UpdateWavelengthWavenumbers;
         end
         
         function InitializeGui(obj,hPanel)
@@ -108,7 +113,7 @@ classdef (Sealed) Monochromator_JY < handle
 
         function out = get.wavelength(obj)
             if obj.initialized
-                out = obj.mono.GetCurrentWavelength./obj.diffractionOrder;
+                out = obj.mono.GetCurrentWavelength / obj.diffractionOrder;
             else
                 out = 3000;
             end
@@ -119,7 +124,7 @@ classdef (Sealed) Monochromator_JY < handle
         end
         
         function out = get.wavenumbers(obj)
-            out = (10^7/obj.mono.GetCurrentWavelength)./obj.diffractionOrder;
+            out = (10^7/obj.mono.GetCurrentWavelength)*obj.diffractionOrder;
         end
         
         function out = get.wavelengthAxis(obj)
@@ -136,8 +141,8 @@ classdef (Sealed) Monochromator_JY < handle
                 otherwise
                     warning('turret numbering is out of bounds');
             end
-            out = (dir.*((1:obj.nPixelsPerArray)-obj.zeroPixel)*dispersion ...
-                + obj.absoluteWavelength)./obj.diffractionOrder;
+            out = dir.*((1:obj.nPixelsPerArray)-obj.zeroPixel).*dispersion./obj.diffractionOrder ...
+                + obj.absoluteWavelength/obj.diffractionOrder;
         end
         
         function out = get.wavenumbersAxis(obj)
@@ -295,7 +300,7 @@ classdef (Sealed) Monochromator_JY < handle
             
             obj.hChildren(12) = uicontrol(obj.hPanel, ...
                 'Style', 'text',...
-                'String', 'Diffaction Order',...
+                'String', 'Diffraction Order',...
                 'HorizontalAlignment','left',...
                 'Units', 'normalized',...
                 'Position', [0.355, 0.74, 0.64, 0.2]);
@@ -368,7 +373,7 @@ classdef (Sealed) Monochromator_JY < handle
             
         end
         function editWavenumbers_Callback(obj,hObject, eventdata)
-            new = obj.diffractionOrder * ReadWavenumbers(obj);
+            new = ReadWavenumbers(obj)./obj.diffractionOrder;
             new = 10^7/new;
             %TODO add error checking here
             obj.mono.MovetoWavelength(new)
