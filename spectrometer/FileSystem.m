@@ -12,7 +12,7 @@ classdef FileSystem < handle
     properties
         flagSaveLocal=true;
         flagSaveRemote=true;
-        flagSaveELN=true;
+        flagSaveELN=true; %IF CRASHING SET TO FALSES
     end
     
     %hold the instance as a persistent variable
@@ -83,13 +83,16 @@ classdef FileSystem < handle
         
         function SaveELN(obj,data)
             %make sure we are on the right page. If not then udate the page
-            if ~strcmp(obj.DateString,obj.eln.page_name)
-                %if they are not the same, update
-                obj.eln = labarchivesCallObj('page',obj.DateString);
+            try
+                if ~strcmp(obj.DateString,obj.eln.page_name)
+                    %if they are not the same, update
+                    obj.eln = labarchivesCallObj('page',obj.DateString);
+                end
+                filename = sprintf('%s/%3.3d.mat', obj.DatePath, obj.FileIndex);
+                obj.eln=obj.eln.addAttachment(filename);
+            catch err
+                warning('Spectrometer:FileSystem', ['Failed to upload data file to Lab Archives.\n', err.message]);
             end
-            
-            filename = sprintf('%s/%3.3d.mat', obj.DatePath, obj.FileIndex);
-            obj.eln=obj.eln.addAttachment(filename);
         end
         
         function SaveTemp(obj, data, counter)
