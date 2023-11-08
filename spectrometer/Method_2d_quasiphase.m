@@ -23,7 +23,7 @@ classdef Method_2d_quasiphase < Method
         
         PARAMS = struct('nShots',[],'nScans',2,'start',-500, 'end', 5000, ...
             'speed', 800, 'bin_zero', 4000, 'bin_min', timeFsToBin(-500, 4000)+1, ...
-            'bin_max', timeFsToBin(5000, 4000)-21, 'acceleration', 66713,'t2',200 ); % 66713 = 2*fs equiv of 10mm
+            'bin_max', timeFsToBin(5000, 4000)-21, 'acceleration', 66713,'t2',200,'polAngle',0); % 66713 = 2*fs equiv of 10mm
         
         source = struct('sampler',[],'gate',[],'spect',[],'motors',[]);
         position;
@@ -167,7 +167,7 @@ classdef Method_2d_quasiphase < Method
             obj.signal.data = zeros(obj.nPixelsPerArray,obj.nBins,obj.nSignals);
             obj.signal.std = zeros(obj.nPixelsPerArray,obj.nBins,obj.nSignals);
             obj.LoadBackground;
-            obj.LoadMultiChanRefMatrix;
+%             obj.LoadMultiChanRefMatrix;
             if isempty(obj.background.data)
                 obj.background.data = zeros(obj.nPixelsPerArray, obj.nSignals);
                 obj.background.std = zeros(obj.nPixelsPerArray, obj.nSignals);
@@ -443,21 +443,21 @@ classdef Method_2d_quasiphase < Method
             obj.result.zeropad = 2*(obj.PARAMS.bin_max - obj.PARAMS.bin_zero);              % @@@Something smarter
             
             % --- Start of new multi-channel referencing ---
-%             LO = obj.signal.data(:,:,1);
-%             Ref = obj.signal.data(:,:,2);
-%             
-%             RefB = zeros(32, length(Ref));
-%             
-%             for ii = 1:32
-%                 for jj = 1:length(Ref)
-%                     RefB(ii, jj) = Ref(:,jj)'*obj.multiChanRefMatrix(:,ii);
-%                 end
-%             end
-%             
-%             obj.result.PP = 1000.*log10(LO./RefB);
+            LO = obj.signal.data(:,:,1);
+            Ref = obj.signal.data(:,:,2);
+            
+            RefB = zeros(32, length(Ref));
+            
+            for ii = 1:32
+                for jj = 1:length(Ref)
+                    RefB(ii, jj) = Ref(:,jj)'*obj.multiChanRefMatrix(:,ii);
+                end
+            end
+            
+            obj.result.PP = 1000.*log10(LO./RefB);
             % --- End of new multi-channel referencing ---
             
-            obj.result.PP = 1000*log10(obj.signal.data(:,:,1)./obj.signal.data(:,:,2));%squeeze(obj.signal.data(:,:,1));            
+%             obj.result.PP = 1000*log10(obj.signal.data(:,:,1)./obj.signal.data(:,:,2));%squeeze(obj.signal.data(:,:,1));            
             
             obj.result.t0_bin = find(obj.result.bin==obj.PARAMS.bin_zero)-t0_bin_shift;
             obj.result.PARAMS = obj.PARAMS;
@@ -484,23 +484,23 @@ classdef Method_2d_quasiphase < Method
         function ProcessSampleNoise(obj)
             
             % --- Start of new multi-channel referencing ---
-%             LO = obj.sorted(:,:,1);
-%             Ref = obj.sorted(:,:,2);
-%             
-%             RefB = zeros(32, length(Ref));
-%             
-%             for ii = 1:32
-%                 for jj = 1:length(Ref)
-%                     RefB(ii, jj) = Ref(:,jj)'*obj.multiChanRefMatrix(:,ii);
-%                 end
-%             end
-%             
-%             obj.result.noise = 1000 * std(log10(LO./RefB),0,2)';
+            LO = obj.sorted(:,:,1);
+            Ref = obj.sorted(:,:,2);
+            
+            RefB = zeros(32, length(Ref));
+            
+            for ii = 1:32
+                for jj = 1:length(Ref)
+                    RefB(ii, jj) = Ref(:,jj)'*obj.multiChanRefMatrix(:,ii);
+                end
+            end
+            
+            obj.result.noise = 1000 * std(log10(LO./RefB),0,2)';
             % --- End of new multi-channel referencing ---
             
             
             %calculate the signal from each shot for an estimate of the error
-            obj.result.noise = 1000 * std(log10(obj.sorted(:,:,1)./obj.sorted(:,:,2)),0,2)';
+%             obj.result.noise = 1000 * std(log10(obj.sorted(:,:,1)./obj.sorted(:,:,2)),0,2)';
             
             %the other option would be a propagation of error calculation but I
             %haven't worked through that yet. See wikipedia Propagation of

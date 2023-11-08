@@ -1,4 +1,4 @@
-classdef Method_2d_quasiphase_Polarization < Method_2d_quasiphase & Polarization_Method
+classdef Method_2d_quasiphase_Polarization_test < Method_2d_quasiphase & Polarization_Method_test
 
     methods
         function obj = Method_2d_quasiphase_Polarization(sampler,gate,spect,...
@@ -39,13 +39,14 @@ classdef Method_2d_quasiphase_Polarization < Method_2d_quasiphase & Polarization
             obj.initialPosition(1) = obj.source.motors{1}.GetPosition;
             obj.initialPosition(2) = obj.source.motors{2}.GetPosition;
             
-            obj.PARAMS = struct('nShots',[],'nScans', [2], 'nScans_Para',[2],'nScans_Perp', [6], 'start',-500, 'end', 5000, ...
-                'speed', 800, 'bin_zero', 4000, 'bin_min', timeFsToBin(-500, 4000)+1, ...
-                'bin_max', timeFsToBin(5000, 4000)-21, 'acceleration', 66713,'t2',[200] );
+            obj.PARAMS = PARAMS;
+%           obj.PARAMS = struct('nShots',[],'nScans', 2, 'start',-500, 'end', 5000, ...
+%               'speed', 800, 'bin_zero', 4000, 'bin_min', timeFsToBin(-500, 4000)+1, ...
+%               'bin_max', timeFsToBin(5000, 4000)-21, 'acceleration', 66713,'t2',200 );
             
             Initialize(obj);
             
-            set(obj.handles.editnScans, 'Enable', 'off');
+            set(obj.handles.editnScans, 'Enable', 'on');
             
             %     InitializeFreqAxis(obj);
             %     InitializeParameters(obj,hParamsPanel);

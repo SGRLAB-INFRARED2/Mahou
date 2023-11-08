@@ -217,14 +217,14 @@ classdef Method_Show_Signal_Shifting_t1 < Method
                 %odd scans (but we're off by one! ie i_scan is updated *after* scanMiddle is called)
                 set(obj.handles.editMotor1,'String','moving...');
                 %poorman's backlash correction
-                pos = obj.source.motors{1}.MoveTo(-40,1700,0,0);
+                pos = obj.source.motors{1}.MoveTo(-40,6000,0,0);
                 %real target
-                pos = obj.source.motors{1}.MoveTo(0,1700,0,0);
+                pos = obj.source.motors{1}.MoveTo(0,6000,0,0);
                 set(obj.handles.editMotor1,'String',num2str(pos));
             else
                 %evens
                 set(obj.handles.editMotor1,'String','moving...');
-                pos = obj.source.motors{1}.MoveTo(0.5/(obj.source.spect.wavenumbers*wavenumbersToInvFs),1700,0,0);
+                pos = obj.source.motors{1}.MoveTo(0.5/(obj.source.spect.wavenumbers*wavenumbersToInvFs),6000,0,0);
                 set(obj.handles.editMotor1,'String',num2str(pos));
             end
             
@@ -284,8 +284,8 @@ classdef Method_Show_Signal_Shifting_t1 < Method
             % move motors back to zero
             set(obj.handles.editMotor1,'String','moving...');
             %poorman's backlash correction
-            pos = obj.source.motors{1}.MoveTo(-40,1700,0,0);
-            pos = obj.source.motors{1}.MoveTo(0,1700,0,0);
+            pos = obj.source.motors{1}.MoveTo(-40,6000,0,0);
+            pos = obj.source.motors{1}.MoveTo(0,6000,0,0);
             set(obj.handles.editMotor1,'String',num2str(pos));
         end
         

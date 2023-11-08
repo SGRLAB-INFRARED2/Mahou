@@ -124,7 +124,7 @@ classdef Method_Show_Shots < Method
             obj.signal.data = zeros(obj.nSignals,obj.nPixelsPerArray);
             obj.signal.std = zeros(obj.nSignals,obj.nPixelsPerArray);
             obj.LoadBackground;
-            obj.LoadMultiChanRefMatrix;
+%             obj.LoadMultiChanRefMatrix;
             if isempty(obj.background.data) || any(size(obj.background.data)~=size(obj.signal.data))
                 obj.background.data = zeros(obj.nSignals,obj.nPixelsPerArray);
                 obj.background.std = zeros(obj.nSignals,obj.nPixelsPerArray);
