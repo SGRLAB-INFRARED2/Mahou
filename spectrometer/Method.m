@@ -61,7 +61,7 @@ classdef Method < handle
         laserPD = struct('raw',[],'bkgd',945,'signal',[],'noise',0,'ind_laser',78);
         %hard coded the background value of the photodiode + gated integrator
         %dark signal for now as a starting point.
-        multiChanRefMatrix = zeros(32);
+        multiChanRefMatrix = eye(32);
     end
     
     %booleans to communicate about the state of a scan. When
@@ -178,17 +178,17 @@ classdef Method < handle
             d.SaveDefaults(name);
         end
         
-        function LoadMultiChanRefMatrix(obj)
-            name = 'multiChanRefMatrix';
-            d = Defaults(obj);
-            d.LoadDefaults(name);
-        end
-        
-        function SaveMultiChanRefMatrix(obj)
-            name = 'multiChanRefMatrix';
-            d = Defaults(obj);
-            d.SaveDefaults(name);
-        end
+%         function LoadMultiChanRefMatrix(obj)
+%             name = 'multiChanRefMatrix';
+%             d = Defaults(obj);
+%             d.LoadDefaults(name);
+%         end
+%         
+%         function SaveMultiChanRefMatrix(obj)
+%             name = 'multiChanRefMatrix';
+%             d = Defaults(obj);
+%             d.SaveDefaults(name);
+%         end
         
         function ScanStop(obj)
             obj.ScanIsStopping = true;
@@ -391,7 +391,7 @@ classdef Method < handle
         
         function BlankShotReset(obj)
             obj.multiChanRefMatrix = eye(32);
-            obj.SaveMultiChanRefMatrix;
+%             obj.SaveMultiChanRefMatrix;
         end
         
         function BlankShotAcquire(obj)
@@ -425,7 +425,7 @@ classdef Method < handle
             set(obj.handles.editnShots,'String',num2str(init_nShots));
             obj.PARAMS.nShots = init_nShots;
             
-            obj.SaveMultiChanRefMatrix;
+%             obj.SaveMultiChanRefMatrix;
             obj.ScanIsRunning = false;
             
             obj.source.motors{2}.MoveTo(init_pos,6000,0,0);
