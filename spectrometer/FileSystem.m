@@ -34,7 +34,8 @@ classdef FileSystem < handle
             fprintf('\nInitializing file system ... \n')
             obj.updateParameters;
             try
-                obj.eln = labarchivesCallObj('notebook',obj.hostname,...
+                obj.eln = labarchivesCallObj(...
+                    'notebook',obj.hostname, ...
                     'page',obj.DateString);
             catch
                 warning('Failed to connect to ELN.')
@@ -101,7 +102,9 @@ classdef FileSystem < handle
             try
                 if ~strcmp(obj.DateString,obj.eln.page_name)
                     %if they are not the same, update
-                    obj.eln = labarchivesCallObj('page',obj.DateString);
+                    obj.eln = labarchivesCallObj(...
+                        'notebook',obj.hostname, ...
+                        'page',obj.DateString);
                 end
                 filename = sprintf('%3.3d.mat', obj.FileIndex);
                 obj.eln=obj.eln.addAttachment(filename);
@@ -172,7 +175,9 @@ classdef FileSystem < handle
             %make sure we are on the right page. If not then udate the page
             if ~strcmp(obj.DateString,obj.eln.page_name)
                 %if they are not the same, update
-                obj.eln = labarchivesCallObj('page',obj.DateString);
+                obj.eln = labarchivesCallObj(...
+                    'notebook',obj.hostname, ...
+                    'page',obj.DateString);
             end
             
             currentPath = pwd;
