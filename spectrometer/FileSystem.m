@@ -7,6 +7,8 @@ classdef FileSystem < handle
         dataDirLocal='C:/data';
 %         dataDirRemote='c:/Users/INFRARED/Box/data/2dir_data';
         dataDirRemote2='c:/Users/INFRARED/OneDrive - University of Pittsburgh/data/2dir_data';
+%         dataDirRemote3='\\share.files.pitt.edu\CHEM-SGR\sgr-laser1.chem.pitt.edu';
+        hostname = getPublicHostName;
         eln;
     end
     properties
@@ -32,8 +34,10 @@ classdef FileSystem < handle
             fprintf('\nInitializing file system ... \n')
             obj.updateParameters;
             try
-                obj.eln = labarchivesCallObj('page',obj.DateString);
+                obj.eln = labarchivesCallObj('notebook',obj.hostname,...
+                    'page',obj.DateString);
             catch
+                warning('Failed to connect to ELN.')
                 obj.flagSaveELN=false;
             end
             fprintf('Done.\n')
@@ -69,30 +73,44 @@ classdef FileSystem < handle
 %                 obj.dataDirRemote, obj.DateString, obj.FileIndex);
             file_name_and_path2 = sprintf('%s/%s/%3.3d.mat',...
                 obj.dataDirRemote2, obj.DateString, obj.FileIndex);
+%             file_name_and_path3 = sprintf('%s/%s/%3.3d.mat',...
+%                 obj.dataDirRemote3, obj.DateString, obj.FileIndex);
 %             dirname =  sprintf('%s/%s',obj.dataDirRemote, obj.DateString);
             dirname2 =  sprintf('%s/%s',obj.dataDirRemote2, obj.DateString);
+%             dirname3 =  sprintf('%s/%s',obj.dataDirRemote3, obj.DateString);
 %             if ~exist(dirname, 'file')
 %                 mkdir(dirname);
 %             end
             if ~exist(dirname2, 'file')
                 mkdir(dirname2);
             end
+%             if ~exist(dirname3, 'file')
+%                 mkdir(dirname3);
+%             end
 %             save(file_name_and_path, 'data');
             save(file_name_and_path2, 'data');
+%             save(file_name_and_path3, 'data');
         end
         
         function SaveELN(obj,data)
             %make sure we are on the right page. If not then udate the page
+            
+            originalPath = pwd;
+            cd(obj.DatePath)
+
             try
                 if ~strcmp(obj.DateString,obj.eln.page_name)
                     %if they are not the same, update
                     obj.eln = labarchivesCallObj('page',obj.DateString);
                 end
-                filename = sprintf('%s/%3.3d.mat', obj.DatePath, obj.FileIndex);
+                filename = sprintf('%3.3d.mat', obj.FileIndex);
                 obj.eln=obj.eln.addAttachment(filename);
             catch err
                 warning('Spectrometer:FileSystem', ['Failed to upload data file to Lab Archives.\n', err.message]);
+                cd(originalPath)
             end
+            
+            cd(originalPath)
         end
         
         function SaveTemp(obj, data, counter)
