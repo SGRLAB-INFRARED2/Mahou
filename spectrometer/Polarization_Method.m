@@ -18,7 +18,7 @@ classdef Polarization_Method < Method
                         obj.fileSystem.AppendLocalOutputFile(obj.current_nScans_Para, obj.current_t2, obj.result.polarization);
                     end
                 elseif ii == 2 && ~obj.ScanIsStopping
-                    obj.source.rotors(1).MoveTo(45);
+                    obj.source.rotors(1).MoveTo(-45);
                     obj.source.rotors(2).MoveTo(270); %can be 90 depending on alignment and where the "scratch" is...
                     obj.result.polarization = 'ZZXX';
                     set(obj.handles.editnScans, 'String', get(obj.handles.editnScans_Perp, 'String'));

@@ -7,7 +7,7 @@ classdef FileSystem < handle
         dataDirLocal='C:/data';
 %         dataDirRemote='c:/Users/INFRARED/Box/data/2dir_data';
         dataDirRemote2='c:/Users/INFRARED/OneDrive - University of Pittsburgh/data/2dir_data';
-        dataDirRemote3=['//share.files.pitt.edu/CHEM-SGR/', getPublicHostName];
+        dataDirRemote3=['Z:/', getPublicHostName];
         hostname = getPublicHostName;
         eln;
     end
