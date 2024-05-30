@@ -26,6 +26,10 @@ classdef FileSystem < handle
             end
             singleObj = localObj;
         end
+        function singleObj = reset
+            clear FileSystem.getInstance
+            singleObj = FileSystem.getInstance;
+        end
     end
     
     methods (Access = private)
@@ -100,6 +104,10 @@ classdef FileSystem < handle
             cd(obj.DatePath)
 
             try
+                if isempty(obj.eln)
+                    error('ELN object missing or empty.')
+                end
+
                 if ~strcmp(obj.DateString,obj.eln.page_name)
                     %if they are not the same, update
                     obj.eln = labarchivesCallObj(...

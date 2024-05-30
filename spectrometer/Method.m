@@ -101,7 +101,7 @@ classdef Method < handle
         
     end
     
-    properties (SetAccess = private)
+    properties %(SetAccess = private)
         % FileSystem, how we record the data
         fileSystem = FileSystem.getInstance;
     end
