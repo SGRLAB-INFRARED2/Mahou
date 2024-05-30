@@ -1,7 +1,7 @@
 global method rotors
 
-polAngles = [330 -25:5:90];
-theta = -30:5:90;
+polAngles = [-20:1:330];
+theta = -20:1:330;
 signalArray3 = zeros(1, length(polAngles));
 
 for ii = 1:length(polAngles)

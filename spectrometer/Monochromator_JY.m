@@ -189,7 +189,7 @@ classdef (Sealed) Monochromator_JY < handle
             %% START HERE
             try
                 obj.mono = actxserver('JYMono.monochromator');
-                obj.mono.UniqueID = 'Mono2'; %this cost me $800...
+                obj.mono.UniqueID = 'Mono2'; %this cost me $800... alternately Mono1
                 obj.mono.Load; %
                 obj.mono.OpenCommunications;
                 obj.mono.Initialize;
