@@ -14,7 +14,7 @@ classdef FileSystem < handle
     properties
         flagSaveLocal=true;
         flagSaveRemote=true;
-        flagSaveELN=true; %IF CRASHING SET TO FALSES
+        flagSaveELN=true; %IF CRASHING SET TO FALSE
     end
     
     %hold the instance as a persistent variable

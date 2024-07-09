@@ -113,6 +113,9 @@ end
 FS = FileSystem.getInstance();
 set(handles.textDate, 'String', FS.DateString);
 set(handles.textRunNumber, 'String', ['Run # ' num2str(FS.FileIndex)]);
+% associated menu items
+hmenuFS = uimenu(gcf, 'Label', 'File System', 'Tag', 'menuFS');
+hmenuFSItems(1) = uimenu(hmenuFS, 'Label', 'Reset file system object', 'Callback', {@(src, eventdata) FS.reset});
 
 FPAS = Sampler_FPAS.getInstance;
 
