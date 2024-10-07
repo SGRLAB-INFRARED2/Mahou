@@ -55,7 +55,7 @@ classdef Method_Show_Spectrum < Method
     
     properties (Dependent, SetAccess = protected)
         Raw_data;
-        Diagnostic_data;
+        %Diagnostic_data;
         Noise;
     end
     

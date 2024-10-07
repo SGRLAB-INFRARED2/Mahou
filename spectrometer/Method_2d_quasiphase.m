@@ -62,7 +62,7 @@ classdef Method_2d_quasiphase < Method
     
     properties (Dependent, SetAccess = protected)
         Raw_data;
-        Diagnostic_data;
+        % Diagnostic_data;
         Noise;
         nBins;
     end

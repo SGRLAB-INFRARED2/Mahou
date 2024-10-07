@@ -90,7 +90,7 @@ classdef Method < handle
     %every specific method must define a get method (no set method needed)
     properties (Abstract,Dependent, SetAccess = protected)
         Raw_data;
-        Diagnostic_data;
+        %Diagnostic_data;
         Noise;
     end
     

@@ -1,10 +1,10 @@
 classdef Multi_Time_Point_Method < Polarization_Method
     
     properties
-        t2_array;
-        nScans_array;
-        nScans_Para_array;
-        nScans_Perp_array;
+        t2_array = {200};
+        nScans_array = {2};
+        nScans_Para_array = {2};
+        nScans_Perp_array = {2};
         
         t2s_rand;
         nScans_rand;
@@ -67,7 +67,6 @@ classdef Multi_Time_Point_Method < Polarization_Method
                     %set t2
                     obj.current_t2 = obj.t2s_rand{ii};
                     set(obj.handles.editt2, 'String', num2str(obj.current_t2));
-                    
                     if ~contains(obj.scanMethod, 'Polarization')
                         obj.fileSystem.AppendLocalOutputFile(obj.current_nScans, obj.current_t2, obj.result.polarization);
                     end
@@ -147,11 +146,13 @@ classdef Multi_Time_Point_Method < Polarization_Method
             tblDataTypes = cell(1,numel(obj.colNames));
             tblDataTypes(:) = {'cell'};
             
-            if ~isempty(obj.temp_t2_array{end})
-                obj.temp_t2_array{end+1,1} = [];
-                obj.temp_nScans_array{end+1,1} = [];
-                obj.temp_nScans_Para_array{end+1,1} = [];
-                obj.temp_nScans_Perp_array{end+1,1} = [];
+            if iscell(obj.temp_t2_array)
+                if ~isempty(obj.temp_t2_array{end})
+                    obj.temp_t2_array{end+1,1} = [];
+                    obj.temp_nScans_array{end+1,1} = [];
+                    obj.temp_nScans_Para_array{end+1,1} = [];
+                    obj.temp_nScans_Perp_array{end+1,1} = [];
+                end
             end
 
             tbl = table('Size', [numel(obj.temp_t2_array) numel(obj.colNames)], 'VariableTypes', tblDataTypes);
@@ -171,7 +172,6 @@ classdef Multi_Time_Point_Method < Polarization_Method
         end
         
         function createSaveButton(obj)
-            
             obj.hChildren{2} = uibutton(obj.hFig, 'push', 'Tag', 'pbSave', ...
                 'Text', 'Save', 'Position', [obj.hFig.Position(3)-115 10 100 28], ...
                 'ButtonPushedFcn', {@(eventdata, handles) pbSave_ButtonPushedFcn(obj,eventdata, handles)}...
