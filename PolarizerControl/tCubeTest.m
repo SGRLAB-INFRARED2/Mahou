@@ -38,7 +38,7 @@ TIMEOUTMOVE=100000;      % Default time out time for motor move
 Thorlabs.MotionControl.DeviceManagerCLI.SimulationManager.Instance.InitializeSimulations()
 
 %%
-% Thorlabs.MotionControl.DeviceManagerCLI.DeviceManagerCLI.BuildDeviceList();  % Build device list
+Thorlabs.MotionControl.DeviceManagerCLI.DeviceManagerCLI.BuildDeviceList();  % Build device list
 serialNumbersNet = Thorlabs.MotionControl.DeviceManagerCLI.DeviceManagerCLI.GetDeviceList(); % Get device list
 serialNumbers=cell(ToArray(serialNumbersNet)) % Convert serial numbers to cell array
 %%

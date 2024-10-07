@@ -57,8 +57,8 @@ classdef Thorlabs_KCubeDCServo < Thorlabs_DCServo
     methods
         function isConnected = get.isConnected(obj)
             try
-                isConnected = boolean(obj.deviceNET.IsConnected());
-            catch
+                isConnected = logical(obj.deviceNET.IsConnected());
+            catch err
                 isConnected = false;
             end
         end
