@@ -566,17 +566,15 @@ classdef Method < handle
         
         function ProcessSample(obj)
             %sort data
+
             ProcessSampleSort(obj);
-            
+
             %remove background
             ProcessSampleSubtBack(obj);
-            
             %avg signals
             ProcessSampleAvg(obj);
-            
             %calc result
             ProcessSampleResult(obj);
-            
             %calc noise (at least an estimate)
             ProcessSampleNoise(obj);
             

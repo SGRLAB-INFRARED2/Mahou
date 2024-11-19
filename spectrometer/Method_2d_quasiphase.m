@@ -348,21 +348,30 @@ classdef Method_2d_quasiphase < Method
         end
         
         function ProcessSampleSort(obj)
-            
+
             obj.aux.igram = obj.sample(obj.ind_igram,:);
             obj.aux.hene_x = obj.sample(obj.ind_hene_x,:);
             obj.aux.hene_y = obj.sample(obj.ind_hene_y,:);
             
             [obj.position, obj.bin] = processPosition(obj.aux.hene_x,obj.aux.hene_y, obj.PARAMS.bin_zero,obj.PARAMS.start);%obj.hene_interferometer_start);
-            
-            for ii=1:obj.PARAMS.nShots
-                jj = obj.bin(ii)-obj.PARAMS.bin_min+1;
-                
-                if (jj<=0) || (jj>obj.nBins), continue, end;
-                obj.bin_data(:,jj) = obj.bin_data(:,jj) + obj.sample(:,ii);
-                obj.bin_count(jj)  = obj.bin_count(jj)+1;
+
+            b = obj.bin;
+            bin_min = obj.PARAMS.bin_min;
+            bd = zeros(size(obj.bin_data));
+            bc = zeros(size(obj.bin_count));
+            s = obj.sample;
+            n_shots = obj.PARAMS.nShots;
+            n_bins = obj.nBins;
+            jjs = b - bin_min + 1;
+            for ii=1:n_shots 
+                jj = jjs(ii);
+                if (jj<=0) || (jj>n_bins), continue, end
+                bd(:,jj) = bd(:,jj) + s(:,ii);
+                bc(jj)  = bc(jj) + 1;
             end
-            
+            obj.bin_data = bd;
+            obj.bin_count = bc;
+
             obj.sorted(1:obj.nPixelsPerArray, 1:obj.nBins, 1) = obj.bin_data(obj.ind_array1, 1:obj.nBins);
             obj.sorted(1:obj.nPixelsPerArray, 1:obj.nBins, 2) = obj.bin_data(obj.ind_array2, 1:obj.nBins);
             obj.bin_igram = obj.bin_data(obj.ind_igram, :);
