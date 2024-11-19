@@ -103,11 +103,14 @@ classdef Defaults < handle
       n = length(names);
       for ii = 1:n
         name = names{ii};
-        if isfield(obj.values,name)
-          obj.values.(name) = obj.inputClass.(name);
-        else
-          warning('SGRLAB:BadDefaultField','not valid property name %s. Doing nothing.',name);
-        end
+        % if isfield(obj.values,name)
+        %   obj.values.(name) = obj.inputClass.(name);
+        % else
+        %   warning('SGRLAB:BadDefaultField','not valid property name %s. Doing nothing.',name);
+        % end
+
+        obj.values.(name) = obj.inputClass.(name);
+
       end
       
       %save back to the file:
