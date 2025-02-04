@@ -347,7 +347,7 @@ classdef Method_2d_quasiphase < Method
             
         end
         
-        function ProcessSampleSort(obj)
+         function ProcessSampleSort(obj)
 
             obj.aux.igram = obj.sample(obj.ind_igram,:);
             obj.aux.hene_x = obj.sample(obj.ind_hene_x,:);
@@ -369,8 +369,8 @@ classdef Method_2d_quasiphase < Method
                 bd(:,jj) = bd(:,jj) + s(:,ii);
                 bc(jj)  = bc(jj) + 1;
             end
-            obj.bin_data = bd;
-            obj.bin_count = bc;
+            obj.bin_data = obj.bin_data + bd;
+            obj.bin_count = obj.bin_count + bc;
 
             obj.sorted(1:obj.nPixelsPerArray, 1:obj.nBins, 1) = obj.bin_data(obj.ind_array1, 1:obj.nBins);
             obj.sorted(1:obj.nPixelsPerArray, 1:obj.nBins, 2) = obj.bin_data(obj.ind_array2, 1:obj.nBins);
