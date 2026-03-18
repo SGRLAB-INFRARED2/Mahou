@@ -268,7 +268,7 @@ function popupMethods_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns popupMethods contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popupMethods
 
-updateMethod(handles);
+    updateMethod(handles);
 
 function updateMethod(handles)
 %update the current method based on the values of the popup menus Method
@@ -279,7 +279,11 @@ global method IO JY motors rotors;
 noiseGainSetting = get(handles.sliderNoiseGain, 'Value');
 
 laserOutputYRange = handles.axesLaserOutput.YLim;
-laserOutputMean = mean(method.laserPD.raw);
+if isvalid(method)
+    laserOutputMean = mean(method.laserPD.raw);
+else
+    laserOutputMean = 12; %Tyler's favorite number (not true)
+end
 
 %clear old class instance
 delete(method);
