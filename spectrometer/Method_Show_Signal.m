@@ -23,7 +23,7 @@ classdef Method_Show_Signal < Method
         ext; %testing external channels for uitable
         signal = struct('data',[],'std',[],'freq',[]);
         
-        PARAMS = struct('nShots',500,'nScans',-1,'nShotsSorted',1);
+        PARAMS = struct('nShots',500,'nScans',-1);
         
         source = struct('sampler',[],'gate',[],'spect',[],'motors',[]);
         
@@ -44,12 +44,14 @@ classdef Method_Show_Signal < Method
         ind_igram = 65;
         ind_hene_x = 79;
         ind_hene_y = 80;
-        ind_chopper = 78;
+        ind_chopper = 73;
         ind_ext = 65:80;
         
         nShotsSorted;
         i_scan;
         
+        % trying to make it work
+        ind_chop;
     end
     
     properties (Dependent, SetAccess = protected)
@@ -136,12 +138,12 @@ classdef Method_Show_Signal < Method
             
             obj.ext = zeros(obj.nExtInputs,obj.nChopStates);
             
-            obj.aux.igram = zeros(obj.nChopStates,obj.PARAMS.nShotsSorted);
-            obj.aux.hene_x = zeros(obj.nChopStates,obj.PARAMS.nShotsSorted);
-            obj.aux.hene_y = zeros(obj.nChopStates,obj.PARAMS.nShotsSorted);
-            obj.aux.ext = zeros(obj.nChopStates,obj.PARAMS.nShotsSorted);
+            obj.aux.igram = zeros(obj.nChopStates,obj.nShotsSorted);
+            obj.aux.hene_x = zeros(obj.nChopStates,obj.nShotsSorted);
+            obj.aux.hene_y = zeros(obj.nChopStates,obj.nShotsSorted);
+            obj.aux.ext = zeros(obj.nChopStates,obj.nShotsSorted);
             obj.aux.chop = zeros(1,obj.PARAMS.nShots);
-            obj.ind_chop = lookChopper(obj.nSignals,obj.aux.chop); %DAC debugging
+            % obj.ind_chop = lookChopper(obj.nSignals/2,obj.aux.chop); %DAC debugging
             
         end
         
@@ -152,21 +154,27 @@ classdef Method_Show_Signal < Method
         %set up the plot for the main output. Called by the class constructor.
         function InitializeMainPlot(obj)
             %attach signal.data(1,:) and signal.data(2,:) to the main plot
-            obj.hPlotMain = zeros(1,obj.nSignals);
+            obj.hPlotMain = zeros(1,obj.nSignals + 1);
             
             % !!! Important note: Cannot use 'hold off' here because of side
             % effects.  This is equivalent.
             set(obj.hMainAxes,'Nextplot','replacechildren');
             %hold(obj.hMainAxes,'off');
             
+            % show signals
             for i = 1:obj.nSignals
                 obj.hPlotMain(i) = plot(obj.hMainAxes,obj.freq,obj.signal.data(i,:));
                 hold(obj.hMainAxes,'all');
                 set(obj.hPlotMain(i),'XDataSource','obj.freq',...
                     'YDataSource',['obj.signal.data(' num2str(i) ',:)'])
             end
+            % show the result
+            obj.hPlotMain(i+1) = plot(obj.hMainAxes,obj.freq,obj.result.data(1,:));
+            hold(obj.hMainAxes,'all');
+            set(obj.hPlotMain(i),'XDataSource','obj.freq',...
+                'YDataSource',['obj.result.data(' num2str(1) ',:)'])
             set(obj.hMainAxes,'Xlim',[obj.freq(1) obj.freq(end)]);
-            
+
         end
         
         function InitializeUITable(obj)
@@ -274,11 +282,12 @@ classdef Method_Show_Signal < Method
         
         function ProcessSampleSort(obj)
             %assign chopper data
-            obj.aux.chop = obj.sample(obj.ind_chop,:);
+            obj.aux.chop = obj.sample(obj.ind_chopper,:);
             
             %look to see when chopper open/closed (pumped/unpumped)
-            ind_chop = lookChopper(obj.nSignals,obj.aux.chop);
-            
+            ind_chop = lookChopper(obj.nSignals/2,obj.aux.chop);
+            obj.ind_chop = ind_chop;
+
             %assign sorted data for array detector
             obj.sorted(:,:,1) = obj.sample(obj.ind_array(1,:),ind_chop(1,:));
             obj.sorted(:,:,2) = obj.sample(obj.ind_array(2,:),ind_chop(1,:));
@@ -290,7 +299,7 @@ classdef Method_Show_Signal < Method
                 obj.aux.igram(i,:) = obj.sample(obj.ind_igram,ind_chop(i,:));
                 obj.aux.hene_x(i,:) = obj.sample(obj.ind_hene_x,ind_chop(i,:));
                 obj.aux.hene_y(i,:) = obj.sample(obj.ind_hene_y,ind_chop(i,:));
-                obj.aux.ext(i,:) = obj.sample(obj.ind_ext,ind_chop(i,:));
+                % obj.aux.ext(i,:) = obj.sample(obj.ind_ext,ind_chop(i,:));
             end
             
         end
@@ -325,8 +334,11 @@ classdef Method_Show_Signal < Method
             %So we first transpose the background from (nSignals x nPixels) to
             %(nPixels x nSignals). Reshape expands that to be (nPixels x 1 x
             %nSignals).
-            bg = reshape(obj.background.data',[obj.nPixelsPerArray 1 obj.nSignals]);
-            
+            try
+                bg = reshape(obj.background.data',[obj.nPixelsPerArray 1 obj.nSignals]);
+            catch
+                bg = zeros(obj.nPixelsPerArray, 1, obj.nSignals);
+            end
             %now bsxfun does the subtraction
             obj.sorted = bsxfun(@minus,obj.sorted,bg);
         end
