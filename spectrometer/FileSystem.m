@@ -1,19 +1,20 @@
 classdef FileSystem < handle
     
-    properties (SetAccess = private)
+    properties
         DateString;
         DatePath;
         FileIndex;
         dataDirLocal='C:/data';
 %         dataDirRemote='c:/Users/INFRARED/Box/data/2dir_data';
         dataDirRemote2='c:/Users/INFRARED/OneDrive - University of Pittsburgh/data/2dir_data';
-        dataDirRemote3=['Z:/', getPublicHostName];
+        dataDirRemote3=['Z:/', getPublicHostName];  % this is isilon
         hostname = getPublicHostName;
         eln;
     end
     properties
         flagSaveLocal=true;
         flagSaveRemote=true;
+        flagSaveIsilon=true;
         flagSaveELN=true; %IF CRASHING SET TO FALSE
     end
     
@@ -58,6 +59,9 @@ classdef FileSystem < handle
             if obj.flagSaveRemote
                 obj.SaveRemote(data);
             end
+            if obj.flagSaveIsilon
+                obj.SaveIsilon(data);
+            end                
             if obj.flagSaveELN
                 obj.SaveELN(data);
             end
@@ -74,29 +78,25 @@ classdef FileSystem < handle
         end
         
         function SaveRemote(obj,data)
-%             file_name_and_path = sprintf('%s/%s/%3.3d.mat',...
-%                 obj.dataDirRemote, obj.DateString, obj.FileIndex);
             file_name_and_path2 = sprintf('%s/%s/%3.3d.mat',...
                 obj.dataDirRemote2, obj.DateString, obj.FileIndex);
-            file_name_and_path3 = sprintf('%s/%s/%3.3d.mat',...
-                obj.dataDirRemote3, obj.DateString, obj.FileIndex);
-%             dirname =  sprintf('%s/%s',obj.dataDirRemote, obj.DateString);
             dirname2 =  sprintf('%s/%s',obj.dataDirRemote2, obj.DateString);
-            dirname3 =  sprintf('%s/%s',obj.dataDirRemote3, obj.DateString);
-%             if ~exist(dirname, 'file')
-%                 mkdir(dirname);
-%             end
             if ~exist(dirname2, 'file')
                 mkdir(dirname2);
             end
+            save(file_name_and_path2, 'data');  % this is OneDrive
+        end
+        
+        function SaveIsilon(obj,data)
+            file_name_and_path3 = sprintf('%s/%s/%3.3d.mat',...
+                obj.dataDirRemote3, obj.DateString, obj.FileIndex);
+            dirname3 =  sprintf('%s/%s',obj.dataDirRemote3, obj.DateString);
             if ~exist(dirname3, 'file')
                 mkdir(dirname3);
             end
-%             save(file_name_and_path, 'data');
-            save(file_name_and_path2, 'data');
-            save(file_name_and_path3, 'data');
+            save(file_name_and_path3, 'data');  % this is ISILON
         end
-        
+
         function SaveELN(obj,data)
             %make sure we are on the right page. If not then udate the page
             
