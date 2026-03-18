@@ -12,7 +12,10 @@ classdef Method_Pump_Probe < Method
         %detector (this should be some generic constructor...)
         result = struct('data',[],...
             'freq',[],...
-            'noise',[]);
+            'noise',[],...
+            't2',[],...
+            'polarization',[],...
+            'PARAMS',[]);
         %ScanIsRunning and ScanIsStopping are inherited
     end
     
@@ -51,6 +54,8 @@ classdef Method_Pump_Probe < Method
         i_scan;
         
         initialPosition;
+
+        chopper_locked logical;
     end
     
     properties (Dependent, SetAccess = protected)
@@ -135,6 +140,7 @@ classdef Method_Pump_Probe < Method
             end
             obj.result.data = zeros(1,obj.nPixelsPerArray);
             obj.result.noise = zeros(1,obj.nPixelsPerArray);
+            obj.result.freq = zeros(1,obj.nPixelsPerArray);
             
             obj.ext = zeros(obj.nExtInputs,obj.nChopStates);
             
@@ -208,7 +214,7 @@ classdef Method_Pump_Probe < Method
             obj.initialPosition = obj.source.motors{2}.GetPosition;
             
             set(obj.handles.editMotor2,'String','moving...');
-            obj.source.motors{2}.MoveTo(obj.PARAMS.t2,6000,0,0);
+            pos = obj.source.motors{2}.MoveTo(obj.PARAMS.t2,6000,0,0);
             set(obj.handles.editMotor2,'String',num2str(pos));
             
         end
@@ -285,9 +291,14 @@ classdef Method_Pump_Probe < Method
             obj.source.sampler.ClearTask;
             
             %Move population stage back to initial position
-            set(obj.handles.editMotor2,'String','moving...');
-            pos = obj.source.motors{2}.MoveTo(obj.initialPosition,6000,0,0);
-            set(obj.handles.editMotor2,'String',num2str(pos));
+            %%% this feels super dangerous!
+            if isfield(obj.result, "polarization")
+                if strcmp(obj.result.polarization, "ZZXX")
+                    set(obj.handles.editMotor2,'String','moving...');
+                    pos = obj.source.motors{2}.MoveTo(obj.initialPosition,6000,0,0);
+                    set(obj.handles.editMotor2,'String',num2str(pos));
+                end
+            end
         end
         
         function ProcessSampleSort(obj)
@@ -296,25 +307,37 @@ classdef Method_Pump_Probe < Method
             
             %look to see when chopper open/closed (pumped/unpumped)
             out = zeros(obj.nChopStates,length(obj.aux.chop));
+ 
             switch obj.nChopStates
                 case 1
                     %do nothing because
                 case 2
-                    out(1,:) = (obj.sample(obj.ind_chopper,:)<20000);
-                    out(2,:) = ~out(1,:);
+                    hi = (obj.sample(obj.ind_chopper,:)<20000);
+                    lo = (obj.sample(obj.ind_chopper,:)>=20000);
+                    n_hi = sum(hi);
+                    n_lo = sum(lo);
+                    if n_hi == n_lo
+                        obj.chopper_locked = true;
+                    else
+                        warning('SRGLAB:chopper_not_locked','Scan: %i \nNumber of chopped %i != unchopped',obj.i_scan,n_hi, n_lo)
+                        obj.chopper_locked = false;
+                    end
+                    out(1,:) = lo;
+                    out(2,:) = hi;
                 otherwise
                     error('SRGLAB:unknowncase','nSignals = %f not allowed. only 1, 2, 4 supported',nChopStates)
             end
             
-            ind_chop_on = logical(out(2,:));
-            ind_chop_off = logical(out(1,:));
-            
-            %assign sorted data for array detector
-            obj.sorted(:,:,1) = obj.sample(obj.ind_array(1,:),ind_chop_on);
-            obj.sorted(:,:,2) = obj.sample(obj.ind_array(2,:),ind_chop_on);
-            obj.sorted(:,:,3) = obj.sample(obj.ind_array(1,:),ind_chop_off);
-            obj.sorted(:,:,4) = obj.sample(obj.ind_array(2,:),ind_chop_off);
-            
+            if obj.chopper_locked
+                ind_chop_on = logical(out(2,:));
+                ind_chop_off = logical(out(1,:));
+
+                %assign sorted data for array detector
+                obj.sorted(:,:,1) = obj.sample(obj.ind_array(1,:),ind_chop_on);
+                obj.sorted(:,:,2) = obj.sample(obj.ind_array(2,:),ind_chop_on);
+                obj.sorted(:,:,3) = obj.sample(obj.ind_array(1,:),ind_chop_off);
+                obj.sorted(:,:,4) = obj.sample(obj.ind_array(2,:),ind_chop_off);
+            end
             %This should be changed to assign data based on obj.sample(obj.ind_igram,obj.ind_chop_on/off);
             %     %assign sorted values for external signals
             %     for i = 1:obj.nChopStates
@@ -323,13 +346,15 @@ classdef Method_Pump_Probe < Method
             %       obj.aux.hene_y(i,:) = obj.sample(obj.ind_hene_y,obj.ind_chopper(i,:));
             %       obj.aux.ext(i,:) = obj.sample(obj.ind_ext,obj.ind_chopper(i,:));
             %     end
-            
+
         end
         
         function ProcessSampleAvg(obj)
-            obj.signal.data = squeeze(mean(obj.sorted,2))';
-            obj.signal.std = squeeze(std(obj.sorted,0,2))';
-            obj.ext = mean(obj.aux.ext,2);
+            if obj.chopper_locked
+                obj.signal.data = squeeze(mean(obj.sorted,2))';
+                obj.signal.std = squeeze(std(obj.sorted,0,2))';
+                obj.ext = mean(obj.aux.ext,2);
+            end
         end
         
         function ProcessSampleBackAvg(obj)
@@ -365,20 +390,27 @@ classdef Method_Pump_Probe < Method
         function ProcessSampleResult(obj)
             %calculate the effective delta absorption (though we are plotting the
             %signals directly)
-            obj.result.freq = obj.freq;
-            this_scan =  -1000.*log10(obj.signal.data(1,:)./obj.signal.data(2,:).*obj.signal.data(4,:)./obj.signal.data(3,:));
-            obj.result.data = (obj.result.data.*(obj.i_scan-1) + this_scan)./obj.i_scan;
-            %obj.result.data= this_scan; Does not avg every run!! for show method
-            %only!!
+            if obj.chopper_locked
+                obj.result.freq = obj.freq;
+                this_scan =  -1000.*log10(obj.signal.data(1,:)./obj.signal.data(2,:).*obj.signal.data(4,:)./obj.signal.data(3,:));
+                obj.result.data = (obj.result.data.*(obj.i_scan-1) + this_scan)./obj.i_scan;
+                %obj.result.data= this_scan; Does not avg every run!! for show method
+                %only!!
+                obj.result.t2 = obj.PARAMS.t2; %%% TO DO TEST THIS
+                obj.result.PARAMS = obj.PARAMS;
+            end
+
         end
         
         function ProcessSampleNoise(obj)
-            %calculate the signal from each shot for an estimate of the error
-            obj.result.noise = 1000 * std(log10(obj.sorted(:,:,1)./obj.sorted(:,:,2).*obj.sorted(:,:,4)./obj.sorted(:,:,3)),0,2)'/sqrt(obj.PARAMS.nShots);
-            
-            %the other option would be a propagation of error calculation but I
-            %haven't worked through that yet. See wikipedia Propagation of
-            %Uncertainty
+            if obj.chopper_locked
+                %calculate the signal from each shot for an estimate of the error
+                obj.result.noise = 1000 * std(log10(obj.sorted(:,:,1)./obj.sorted(:,:,2).*obj.sorted(:,:,4)./obj.sorted(:,:,3)),0,2)'/sqrt(obj.PARAMS.nShots);
+
+                %the other option would be a propagation of error calculation but I
+                %haven't worked through that yet. See wikipedia Propagation of
+                %Uncertainty
+            end
         end
     end
     

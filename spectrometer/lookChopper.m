@@ -26,7 +26,7 @@ function [out,chopperOn] = lookChopper(nChopStates,chopperSignal,varargin)
 %    2) user specified chopperLevel
 %    3) adjust strictness of checking
 
-chopperLevel = 2^15; %(16 bit = 2^16 = 5V, divide by 2 for 2.5V = 2^15)
+chopperLevel = 47531;% 2^15; %(16 bit = 2^16 = 5V, divide by 2 for 2.5V = 2^15) plus "zero" is 16514
 
 %process optional arguments here
 out = zeros(nChopStates,length(chopperSignal));
@@ -55,3 +55,4 @@ if nargout >= 2
     chopperOn = 1;
   end      
 end
+out = logical(out);
